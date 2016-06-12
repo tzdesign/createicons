@@ -1,0 +1,44 @@
+#!/usr/bin/php
+<?
+
+$dir = getcwd();
+$file = $argv[1];
+
+echo "Oh boy! Let's go with this file: $file\n";
+
+if(file_exists($dir.'/Contents.json')){
+
+$iconSet = json_decode(file_get_contents($dir.'/Contents.json'));
+if(!$iconSet->images){
+
+}
+else{
+foreach($iconSet->images as &$icon){
+  $size = explode("x",$icon->size)[0];
+  $scale = str_replace("x","",$icon->scale);
+  $filename = "Icon-$size@{$scale}x.png";
+  echo "Generating Image: Icon-$size@{$scale}x.png\n";
+
+  exec("cp $file {$file}x");
+  $ex = 'sips --resampleWidth '.($size*$scale).'  "'.$file.'x" --out "'.$dir.'/'.$filename.'"';
+  exec($ex);
+  exec("rm {$file}x");
+$icon->filename  = $filename;
+
+}
+
+file_put_contents("Contents.json", json_encode($iconSet,JSON_PRETTY_PRINT));
+
+
+}
+
+}
+
+else{
+
+echo "Sorry Bro! No Content.json\n";
+
+}
+
+
+?>
